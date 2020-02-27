@@ -33,7 +33,7 @@ jobs:
       AUTO_CACHING: "1"
 
     steps:
-      - name: Get repository name.
+      - name: 获取仓库名称
         shell: bash
         run: echo ::set-env name=REPO_NAME::${GITHUB_REPOSITORY##*/}
 
@@ -42,7 +42,7 @@ jobs:
         with:
           submodules: recursive
 
-      - name: Set up environment variables.
+      - name: 建立环境变量
         shell: cmd
         run: |
           cd ..
@@ -68,7 +68,7 @@ jobs:
           cd Libraries
           echo ::set-env name=LibrariesPath::%cd%
 
-      - name: Generate cache key.
+      - name: 生成缓存主键
         shell: bash
         run: |
           if [ "$AUTO_CACHING" == "1" ]; then
@@ -77,11 +77,11 @@ jobs:
           fi
           echo ::set-env name=CACHE_KEY::`md5sum CACHE_KEY.txt | awk '{ print $1 }'`
 
-      - name: Choco installs.
+      - name: Choco无进程安装nasm,yasm,jom,ninja
         run: |
           choco install --no-progress -y nasm yasm jom ninja
 
-      - name: Range-v3.
+      - name: 很骚的库：range-v3
         shell: bash
         run: |
           echo "Find necessary branch from doc."
@@ -90,7 +90,7 @@ jobs:
           echo $cloneRange
           eval $cloneRange
 
-      - name: Patches.
+      - name: 打补丁
         shell: bash
         run: |
           echo "Find necessary commit from doc."
@@ -100,7 +100,7 @@ jobs:
           cd Patches
           eval $checkoutCommit
 
-      - name: LZMA.
+      - name: Deflate和LZ77算法改良和优化后的压缩算LZMA.
         shell: cmd
         run: |
           %VC%
@@ -110,7 +110,7 @@ jobs:
           cd C\Util\LzmaLib
           msbuild -m LzmaLib.sln /property:Configuration=Debug
 
-      - name: OpenSSL cache.
+      - name: OpenSSL库缓存
         id: cache-openssl
         uses: actions/cache@v1
         with:
@@ -143,7 +143,7 @@ jobs:
           rmdir /S /Q test
           rmdir /S /Q .git
 
-      - name: Zlib.
+      - name: Zlib库
         shell: cmd
         run: |
           %VC%
@@ -154,7 +154,7 @@ jobs:
           cd contrib\vstudio\vc14
           msbuild -m zlibstat.vcxproj /property:Configuration=Debug
 
-      - name: OpenAL Soft cache.
+      - name: OpenAL Soft库缓存.
         id: cache-openal
         uses: actions/cache@v1
         with:
@@ -178,7 +178,7 @@ jobs:
 
           msbuild -m OpenAL.vcxproj /property:Configuration=Debug
 
-      - name: Breakpad cache.
+      - name: Breakpad 缓存.
         id: cache-breakpad
         uses: actions/cache@v1
         with:
@@ -227,7 +227,7 @@ jobs:
           call vcvars32.bat
           msbuild -m dump_syms.vcxproj /property:Configuration=Release
 
-      - name: Opus cache.
+      - name: Opus 库缓存.
         id: cache-opus
         uses: actions/cache@v1
         with:
@@ -268,7 +268,7 @@ jobs:
 
           rmdir /S /Q .git
 
-      - name: Qt 5.12.5 cache.
+      - name: Qt 5.12.5 库缓存.
         id: cache-qt
         uses: actions/cache@v1
         with:
@@ -309,7 +309,7 @@ jobs:
           -nomake examples ^
           -nomake tests ^
           -platform win32-msvc
-      - name: Qt 5.12.5 build.
+      - name: Qt 5.12.5 构建.
         if: steps.cache-qt.outputs.cache-hit != 'true'
         shell: cmd
         run: |
@@ -332,7 +332,7 @@ jobs:
           fi
           echo "::set-env name=TDESKTOP_BUILD_DEFINE::$DEFINE"
 
-      - name: Telegram Desktop build.
+      - name: Telegram 客户端构建.
         if: env.ONLY_CACHE == 'false'
         shell: cmd
         run: |
@@ -348,7 +348,7 @@ jobs:
           cd ..\out
           msbuild -m Telegram.sln /nologo /p:Configuration=Debug,Platform=Win32
 
-      - name: Move artifact.
+      - name: 移动打包制品.
         if: env.UPLOAD_ARTIFACT == 'true'
         run: |
           cd %REPO_NAME%\out\Debug
