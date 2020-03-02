@@ -109,6 +109,7 @@ jobs:
           cd lzma
           cd C\Util\LzmaLib
           msbuild -m LzmaLib.sln /property:Configuration=Debug
+          msbuild -m LzmaLib.sln /property:Configuration=Release
 
       - name: OpenSSL库缓存
         id: cache-openssl
@@ -153,6 +154,7 @@ jobs:
           git checkout tdesktop
           cd contrib\vstudio\vc14
           msbuild -m zlibstat.vcxproj /property:Configuration=Debug
+          msbuild -m zlibstat.vcxproj /property:Configuration=ReleaseWithoutAsm
 
       - name: OpenAL Soft库缓存.
         id: cache-openal
@@ -177,6 +179,7 @@ jobs:
           -D FORCE_STATIC_VCRT:STRING=ON ..
 
           msbuild -m OpenAL.vcxproj /property:Configuration=Debug
+          msbuild -m OpenAL.vcxproj /property:Configuration=Release
 
       - name: Breakpad 缓存.
         id: cache-breakpad
@@ -339,19 +342,20 @@ jobs:
           cd tdesktop\Telegram
 
           call configure.bat ^
-          -D TDESKTOP_API_TEST=ON ^
+          -D TDESKTOP_API_ID=1223566 ^
+          -D TDESKTOP_API_HASH=e7f790e0e74998bf07ca07044d3192bb ^
           -D DESKTOP_APP_USE_PACKAGED=OFF ^
           %TDESKTOP_BUILD_DEFINE% ^
           -DCMAKE_SYSTEM_VERSION=%SDK%
 
           call vcvars32.bat
           cd ..\out
-          msbuild -m Telegram.sln /nologo /p:Configuration=Debug,Platform=Win32
+          msbuild -m Telegram.sln /nologo /p:Configuration=Release,Platform=Win32
 
       - name: 移动打包制品.
         if: env.UPLOAD_ARTIFACT == 'true'
         run: |
-          cd tdesktop\out\Debug
+          cd tdesktop\out\Release
           mkdir artifact
           move Telegram.exe artifact/
           move Updater.exe artifact/
@@ -360,4 +364,4 @@ jobs:
         if: env.UPLOAD_ARTIFACT == 'true'
         with:
           name: Telegram
-          path: ${{ env.REPO_NAME }}\out\Debug\artifact\
+          path: ${{ env.REPO_NAME }}\out\Release\artifact\
