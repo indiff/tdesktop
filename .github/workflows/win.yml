@@ -106,8 +106,7 @@ jobs:
           %VC%
 
           git clone %GIT%/telegramdesktop/lzma.git
-          cd lzma
-          cd C\Util\LzmaLib
+          cd lzma\C\Util\LzmaLib
           msbuild -m LzmaLib.sln /property:Configuration=Debug
           msbuild -m LzmaLib.sln /property:Configuration=Release
 
@@ -149,9 +148,8 @@ jobs:
         run: |
           %VC%
 
-          git clone %GIT%/telegramdesktop/zlib.git
+          git clone %GIT%/desktop-app/zlib.git
           cd zlib
-          git checkout tdesktop
           cd contrib\vstudio\vc14
           msbuild -m zlibstat.vcxproj /property:Configuration=Debug
           msbuild -m zlibstat.vcxproj /property:Configuration=ReleaseWithoutAsm
@@ -194,7 +192,7 @@ jobs:
         shell: cmd
         if: steps.cache-breakpad.outputs.cache-hit != 'true'
         run: |
-          cd %LibrariesPath%
+          %VC%
 
           echo Find any version of Python 2.
           for /D %%a in (C:\hostedtoolcache\windows\Python\2.*) do (
@@ -205,18 +203,17 @@ jobs:
             exit 1
           )
           echo Found %PY2%.
-
+          
           git clone %GIT%/telegramdesktop/gyp.git
           cd gyp
           SET PATH=%PY2%;%cd%;%PATH%
           git checkout tdesktop
-
-          cd %LibrariesPath%
-
+          
+          
           git clone %GIT%/google/breakpad
           cd breakpad
           git checkout a1dbcdcb43
-          git apply ../patches/breakpad.diff
+          git apply ../../%REPO_NAME%/Telegram/Patches/breakpad.diff
           cd src
           git clone %GIT%/google/googletest testing
           cd client\windows
@@ -224,11 +221,11 @@ jobs:
           cd ..\..
           ninja -C out/Debug common crash_generation_client exception_handler
           ninja -C out/Release common crash_generation_client exception_handler
+        
           cd tools\windows\dump_syms
-          call gyp dump_syms.gyp
+          gyp dump_syms.gyp
+          msbuild dump_syms.vcxproj /property:Configuration=Release
 
-          call vcvars32.bat
-          msbuild -m dump_syms.vcxproj /property:Configuration=Release
 
       - name: Opus 库缓存.
         id: cache-opus
@@ -293,12 +290,12 @@ jobs:
           git apply ../../patches/qtbase_%QT%.diff
           cd ..
 
-          SET SSL=%LibrariesPath%\openssl_1_1_1
+          SET SSL=%LibrariesPath%\openssl_%OPENSSL_VER%
           SET LIBS=libcrypto.lib Ws2_32.lib Gdi32.lib Advapi32.lib Crypt32.lib User32.lib
 
           configure ^
           -prefix "%LibrariesPath%\Qt-5.12.5" ^
-          -debug ^
+          -debug-and-release ^
           -force-debug-info ^
           -opensource ^
           -confirm-license ^
